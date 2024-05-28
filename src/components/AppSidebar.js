@@ -1,6 +1,7 @@
-import React from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
+import CIcon from '@coreui/icons-react'
 import {
   CCloseButton,
   CSidebar,
@@ -9,7 +10,6 @@ import {
   CSidebarHeader,
   CSidebarToggler,
 } from '@coreui/react'
-import CIcon from '@coreui/icons-react'
 
 import { AppSidebarNav } from './AppSidebarNav'
 
@@ -23,6 +23,15 @@ const AppSidebar = () => {
   const dispatch = useDispatch()
   const unfoldable = useSelector((state) => state.sidebarUnfoldable)
   const sidebarShow = useSelector((state) => state.sidebarShow)
+
+  // use effect and verify if localstorage(user) is there
+  // if not, redirect to login
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'))
+    if (!user) {
+      window.location.replace('http://localhost:3000/login#/login')
+    }
+  }, [])
 
   return (
     <CSidebar

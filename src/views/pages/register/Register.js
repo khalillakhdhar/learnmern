@@ -12,9 +12,61 @@ import {
   CInputGroupText,
   CRow,
 } from '@coreui/react'
-import React from 'react'
+import axios from 'axios'
+import React, { useState } from 'react'
+import { useHistory } from 'react-router-dom'
 
 const Register = () => {
+  const [formData, setFormData] = useState({
+    nom: '',
+    prenom: '',
+    email: '',
+    mdp: '',
+    confirmPassword: '',
+    telephone: '',
+    role: 'Candidat',
+  })
+
+  const { nom, prenom, email, mdp, confirmPassword, telephone, role } = formData
+  const history = useHistory()
+
+  const onChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
+
+  const onSubmit = async (e) => {
+    e.preventDefault()
+    if (mdp !== confirmPassword) {
+      alert('Les mots de passe ne correspondent pas')
+      return
+    }
+
+    try {
+      const url = 'http://localhost:5000/api/auth/register'
+      const res = await axios.post(url, {
+        nom,
+        prenom,
+        email,
+        mdp,
+        telephone,
+        role,
+      })
+
+      // Enregistrer le token et les informations de l'utilisateur dans le localStorage
+      const { token, user } = res.data
+      localStorage.setItem('token', token)
+      localStorage.setItem('user', JSON.stringify(user))
+
+      alert('Inscription réussie')
+
+      // Rediriger l'utilisateur vers le tableau de bord
+      history.push('/dashboard')
+    } catch (err) {
+      console.error(err)
+      alert("Erreur lors de l'inscription")
+    }
+  }
+
   return (
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
@@ -22,32 +74,53 @@ const Register = () => {
           <CCol md={9} lg={7} xl={6}>
             <CCard className="mx-4">
               <CCardBody className="p-4">
-                <CForm>
-                  <h1>insrciption</h1>
-                  <p className="text-body-secondary">Créer votre autoComplete</p>
+                <CForm onSubmit={onSubmit}>
+                  <h1>Inscription</h1>
+                  <p className="text-body-secondary">Créer votre compte</p>
                   <CInputGroup className="mb-3">
                     <CInputGroupText>
                       <CIcon icon={cilUser} />
                     </CInputGroupText>
-                    <CFormInput placeholder="nom" autoComplete="nom" />
+                    <CFormInput
+                      name="nom"
+                      placeholder="Nom"
+                      value={nom}
+                      onChange={onChange}
+                      autoComplete="nom"
+                    />
                   </CInputGroup>
                   <CInputGroup className="mb-3">
                     <CInputGroupText>
                       <CIcon icon={cilUser} />
                     </CInputGroupText>
-                    <CFormInput placeholder="prenom" autoComplete="prenom" />
+                    <CFormInput
+                      name="prenom"
+                      placeholder="Prénom"
+                      value={prenom}
+                      onChange={onChange}
+                      autoComplete="prenom"
+                    />
                   </CInputGroup>
                   <CInputGroup className="mb-3">
                     <CInputGroupText>@</CInputGroupText>
-                    <CFormInput placeholder="Email" autoComplete="email" />
+                    <CFormInput
+                      name="email"
+                      placeholder="Email"
+                      value={email}
+                      onChange={onChange}
+                      autoComplete="email"
+                    />
                   </CInputGroup>
                   <CInputGroup className="mb-3">
                     <CInputGroupText>
                       <CIcon icon={cilLockLocked} />
                     </CInputGroupText>
                     <CFormInput
+                      name="mdp"
                       type="password"
-                      placeholder="mot de passe"
+                      placeholder="Mot de passe"
+                      value={mdp}
+                      onChange={onChange}
                       autoComplete="new-password"
                     />
                   </CInputGroup>
@@ -56,8 +129,11 @@ const Register = () => {
                       <CIcon icon={cilLockLocked} />
                     </CInputGroupText>
                     <CFormInput
+                      name="confirmPassword"
                       type="password"
-                      placeholder="répéter mot de passe"
+                      placeholder="Répéter le mot de passe"
+                      value={confirmPassword}
+                      onChange={onChange}
                       autoComplete="new-password"
                     />
                   </CInputGroup>
@@ -65,13 +141,21 @@ const Register = () => {
                     <CInputGroupText>
                       <CIcon icon={cilPhone} />
                     </CInputGroupText>
-                    <CFormInput placeholder="telephone" autoComplete="nom" />
+                    <CFormInput
+                      name="telephone"
+                      placeholder="Téléphone"
+                      value={telephone}
+                      onChange={onChange}
+                      autoComplete="telephone"
+                    />
                   </CInputGroup>
                   <div className="d-grid">
-                    <CButton color="success">inscription</CButton>
+                    <CButton type="submit" color="success">
+                      Inscription
+                    </CButton>
                   </div>
                 </CForm>
-                <a href="../login">Déjà membre?</a>
+                <a href="/login">Déjà membre?</a>
               </CCardBody>
             </CCard>
           </CCol>
